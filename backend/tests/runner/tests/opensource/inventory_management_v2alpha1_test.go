@@ -120,11 +120,14 @@ func (u *InventoryManagementV2Alpha1Suite) TestSearchByDeviceIdentities() {
 			func(device client.DeviceInventoryResponse) bool { return expectedDevice.ID == device.GetId() },
 		), "search did not find expected device")
 
-		// Check that all devices in the result has id starting with the prefix
+		// Check that all devices in the result contains the search value
 		// and that only expected attributes are returned
 		for _, device := range results {
 			require.True(
-				strings.HasPrefix(device.GetId(), valuePrefix),
+				strings.Contains(
+					strings.ToLower(device.GetId()),
+					strings.ToLower(valuePrefix),
+				),
 				"search found unexpected device",
 			)
 			expectedAttributes := []string{mac}
@@ -183,11 +186,14 @@ func (u *InventoryManagementV2Alpha1Suite) TestSearchByDeviceIdentities() {
 			},
 		), "search did not find expected device")
 
-		// Check that all devices in the result has mac starting with the prefix
+		// Check that all devices in the result contains the search value
 		for _, device := range results {
 			identity := pickStringAttributeValue(device.GetAttributes(), scope, name)
 			require.True(
-				strings.HasPrefix(identity, valuePrefix), "search found unexpected device",
+				strings.Contains(
+					strings.ToLower(identity),
+					strings.ToLower(valuePrefix),
+				), "search found unexpected device",
 			)
 		}
 	})
@@ -214,13 +220,16 @@ func (u *InventoryManagementV2Alpha1Suite) TestSearchByDeviceIdentities() {
 		require.NoError(err)
 		require.NotNil(res)
 
-		// Check that all devices in the result has name starting with the expected prefix
+		// Check that all devices in the result contains the search value
 		// and is part of the expected page
 		require.Len(results, pageSize, "unexpected number of results in results page")
 		for _, device := range results {
 			identity := pickStringAttributeValue(device.GetAttributes(), scope, name)
 			require.True(
-				strings.HasPrefix(identity, valuePrefix), "search found unexpected device",
+				strings.Contains(
+					strings.ToLower(identity),
+					strings.ToLower(valuePrefix),
+				), "search found unexpected device",
 			)
 
 			nameFirstDeviceInPage := fmt.Sprintf("%s-%d", nameTagPrefix, pageSize+1)
@@ -281,12 +290,13 @@ func (u *InventoryManagementV2Alpha1Suite) TestSearchByDeviceIdentities() {
 		require.NotNil(res)
 
 		// Check that all devices in the result has name or custom identity attribute
-		// starting with the expected prefix
+		// containing the search value
 		for _, device := range results {
 			name := pickStringAttributeValue(device.GetAttributes(), client.TAGS, nameTagName)
 			custom := pickStringAttributeValue(device.GetAttributes(), client.IDENTITY, customNameIDAttrName)
 			require.True(
-				strings.HasPrefix(name, valuePrefix) || strings.HasPrefix(custom, valuePrefix),
+				strings.Contains(strings.ToLower(name), strings.ToLower(valuePrefix)) ||
+					strings.Contains(strings.ToLower(custom), strings.ToLower(valuePrefix)),
 				"search found unexpected device",
 			)
 		}

@@ -85,7 +85,8 @@ const findOption = (options, target) => options.find(option => isSameAttribute(o
 const getAttributeValue = (device: Device, { attribute, scope }) => String(defaultTextRender({ column: { attribute: { name: attribute, scope } }, device }));
 
 const toResult = (device: Device, idAttribute, searchedAttributes, term: string): SearchResultItem => {
-  const matched = searchedAttributes.filter(searched => getAttributeValue(device, searched).startsWith(term));
+  const lowerTerm = term.toLowerCase();
+  const matched = searchedAttributes.filter(searched => getAttributeValue(device, searched).toLowerCase().includes(lowerTerm));
   return {
     checkIn: device.check_in_time_exact ?? device.check_in_time_rounded,
     device,
@@ -160,7 +161,8 @@ const isEditableTarget = (target: EventTarget | null) => {
 };
 
 const HighlightedMatch = ({ className, term, text }) => {
-  const index = term ? text.indexOf(term) : -1;
+  const lowerTerm = term.toLowerCase();
+  const index = term ? text.toLowerCase().indexOf(lowerTerm) : -1;
   if (index < 0) {
     return text;
   }
@@ -252,7 +254,7 @@ const SearchDialog = ({ onClose, open, setTerm, term }) => {
   const debouncedTerm = useDebounce(term, TIMEOUTS.debounceDefault);
 
   const isAnySelected = !attribute;
-  const placeholder = `Find devices by ${isAnySelected ? 'any attribute' : selectedOption.label} starting with...`;
+  const placeholder = `Find devices by ${isAnySelected ? 'any attribute' : selectedOption.label} containing...`;
   const hasSearched = !!searchedTerm;
   const showResults = !!results.length;
   const showPlaceholder = !showResults && !!term;
@@ -397,7 +399,7 @@ const SearchDialog = ({ onClose, open, setTerm, term }) => {
       <Divider />
       {!searchHintDismissed && (
         <Alert onClose={onDismissHint} severity="info">
-          Search is case-sensitive and matches the start of the value (e.g., ABC-1 matches ABC-123, abc-1 does not).
+          Search is case-insensitive and matches anywhere in the value (e.g., abc matches ABC-123).
         </Alert>
       )}
       {(showResults || showSkeleton) && (
@@ -476,7 +478,7 @@ const SearchDialog = ({ onClose, open, setTerm, term }) => {
             No matching devices found
           </Typography>
           <Typography className="margin-top-x-small" color="textSecondary" variant="body2">
-            Try adjusting your search term using the exact prefix and correct casing of your device identity attribute.
+            Try adjusting your search term or check the spelling of your device identity attribute.
           </Typography>
         </div>
       )}

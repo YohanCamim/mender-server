@@ -41,7 +41,7 @@ describe('SearchV2 Component', () => {
     );
     render(ui);
     await user.keyboard('/');
-    const input = await screen.findByPlaceholderText(/starting with/i);
+    const input = await screen.findByPlaceholderText(/containing/i);
     await user.type(input, defaultDeviceId);
     // the search term is debounced, so the request only goes out once the timers have moved past it
     await act(async () => {

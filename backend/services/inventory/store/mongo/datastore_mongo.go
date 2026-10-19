@@ -1231,7 +1231,7 @@ func (db *DataStoreMongo) SearchDevicesByIdentity(
 	var (
 		query         bson.M
 		sort          bson.D
-		prefixMatcher = bson.Regex{Pattern: "^" + regexp.QuoteMeta(searchParams.ValuePrefix)}
+		prefixMatcher = bson.Regex{Pattern: regexp.QuoteMeta(searchParams.ValuePrefix), Options: "i"}
 	)
 
 	if searchParams.Attribute == nil {
